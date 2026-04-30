@@ -100,24 +100,26 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
   );
 
   return (
-    <div className="p-8 w-full flex flex-col items-center">
-      <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10 w-full text-center">
+    <div className="p-8">
+      <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10 text-center">
         {state.tournament.name}
       </h1>
-      <div className="overflow-x-auto max-w-full">
-        <Bracket
-          rounds={toRounds(state)}
-          roundTitleComponent={(title: string | JSX.Element) => (
-            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
-              {title}
-            </p>
-          )}
-          renderSeedComponent={({ seed, breakpoint }) => (
-            <Seed mobileBreakpoint={breakpoint}>
-              <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
-            </Seed>
-          )}
-        />
+      <div className="overflow-x-auto">
+        <div className="flex justify-center" style={{ minWidth: 'max-content' }}>
+          <Bracket
+            rounds={toRounds(state)}
+            roundTitleComponent={(title: string | JSX.Element) => (
+              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
+                {title}
+              </p>
+            )}
+            renderSeedComponent={({ seed, breakpoint }) => (
+              <Seed mobileBreakpoint={breakpoint}>
+                <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
+              </Seed>
+            )}
+          />
+        </div>
       </div>
     </div>
   );
