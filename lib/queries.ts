@@ -1,42 +1,66 @@
 import { sql } from './db';
 import type { BracketState } from '../types/tournament';
 
+interface TournamentRow {
+  id: string;
+  name: string;
+  status: string;
+  created_at: string;
+}
+
+interface PlayerRow {
+  id: string;
+  tournament_id: string;
+  name: string;
+  seed: number;
+}
+
+interface MatchRow {
+  id: string;
+  tournament_id: string;
+  round: number;
+  position: number;
+  player1_id: string | null;
+  player2_id: string | null;
+  winner_id: string | null;
+  next_match_id: string | null;
+}
+
 export async function getBracketState(tournamentId: string): Promise<BracketState | null> {
-  const rows = await sql`
-    SELECT id, name, status, created_at FROM tournaments WHERE id = ${tournamentId}
-  `;
-  if (rows.length === 0) return null;
-  const t = rows[0];
+  const [tournamentRows, players, matches] = await Promise.all([
+    sql`SELECT id, name, status, created_at FROM tournaments WHERE id = ${tournamentId}`,
+    sql`
+      SELECT id, tournament_id, name, seed
+      FROM players
+      WHERE tournament_id = ${tournamentId}
+      ORDER BY seed
+    `,
+    sql`
+      SELECT id, tournament_id, round, position,
+             player1_id, player2_id, winner_id, next_match_id
+      FROM matches
+      WHERE tournament_id = ${tournamentId}
+      ORDER BY round, position
+    `,
+  ]);
 
-  const players = await sql`
-    SELECT id, tournament_id, name, seed
-    FROM players
-    WHERE tournament_id = ${tournamentId}
-    ORDER BY seed
-  `;
-
-  const matches = await sql`
-    SELECT id, tournament_id, round, position,
-           player1_id, player2_id, winner_id, next_match_id
-    FROM matches
-    WHERE tournament_id = ${tournamentId}
-    ORDER BY round, position
-  `;
+  if (tournamentRows.length === 0) return null;
+  const t = tournamentRows[0] as TournamentRow;
 
   return {
     tournament: {
       id: t.id,
       name: t.name,
-      status: t.status,
+      status: t.status as 'active' | 'complete',
       createdAt: t.created_at,
     },
-    players: players.map((p: any) => ({
+    players: (players as PlayerRow[]).map(p => ({
       id: p.id,
       tournamentId: p.tournament_id,
       name: p.name,
       seed: p.seed,
     })),
-    matches: matches.map((m: any) => ({
+    matches: (matches as MatchRow[]).map(m => ({
       id: m.id,
       tournamentId: m.tournament_id,
       round: m.round,
