@@ -125,7 +125,7 @@ API_KEY=replace-with-a-random-secret
 PUSHER_APP_ID=your-app-id
 PUSHER_SECRET=your-secret
 NEXT_PUBLIC_PUSHER_KEY=your-key
-NEXT_PUBLIC_PUSHER_CLUSTER=us2
+NEXT_PUBLIC_PUSHER_CLUSTER=us3
 ```
 
 - [ ] **Step 2: Copy to `.env.local` and fill in real values**
