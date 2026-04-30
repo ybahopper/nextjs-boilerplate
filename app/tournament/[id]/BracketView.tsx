@@ -22,8 +22,14 @@ function toRounds(state: BracketState) {
       .map((m: Match) => ({
         id: m.id,
         teams: [
-          { name: m.player1Id ? (playerMap.get(m.player1Id) ?? 'TBD') : 'BYE' },
-          { name: m.player2Id ? (playerMap.get(m.player2Id) ?? 'TBD') : 'BYE' },
+          {
+            name: m.player1Id ? (playerMap.get(m.player1Id) ?? 'TBD') : 'BYE',
+            isWinner: m.winnerId !== null && m.winnerId === m.player1Id,
+          },
+          {
+            name: m.player2Id ? (playerMap.get(m.player2Id) ?? 'TBD') : 'BYE',
+            isWinner: m.winnerId !== null && m.winnerId === m.player2Id,
+          },
         ],
       }));
 
