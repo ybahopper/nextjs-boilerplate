@@ -104,20 +104,25 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
       <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10">
         {state.tournament.name}
       </h1>
-      <div className="overflow-x-auto flex justify-center">
-        <Bracket
-          rounds={toRounds(state)}
-          roundTitleComponent={(title: string | JSX.Element) => (
-            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
-              {title}
-            </p>
-          )}
-          renderSeedComponent={({ seed, breakpoint }) => (
-            <Seed mobileBreakpoint={breakpoint}>
-              <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
-            </Seed>
-          )}
-        />
+      <div className="overflow-x-auto w-full">
+        <div className="w-max mx-auto">
+          <Bracket
+            rounds={toRounds(state)}
+            roundTitleComponent={(title: string | JSX.Element) => (
+              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
+                {title}
+              </p>
+            )}
+            renderSeedComponent={({ seed, breakpoint }) => {
+              const hasWinner = (seed.teams as { isWinner?: boolean }[]).some(t => t.isWinner);
+              return (
+                <Seed mobileBreakpoint={breakpoint} {...(hasWinner ? { 'data-winner': 'true' } : {})}>
+                  <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
+                </Seed>
+              );
+            }}
+          />
+        </div>
       </div>
     </div>
   );
