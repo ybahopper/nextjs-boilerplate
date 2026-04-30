@@ -42,6 +42,7 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
   const [error, setError] = useState<string | null>(null);
   const [newWinners, setNewWinners] = useState<Set<string>>(new Set());
   const prevStateRef = useRef<BracketState | null>(null);
+  const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetch(`/api/tournaments/${tournamentId}`)
@@ -67,8 +68,9 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
           }
         }
         if (freshWinners.size > 0) {
+          if (pulseTimerRef.current !== null) clearTimeout(pulseTimerRef.current);
           setNewWinners(freshWinners);
-          setTimeout(() => setNewWinners(new Set()), 1000);
+          pulseTimerRef.current = setTimeout(() => setNewWinners(new Set()), 1000);
         }
       }
       prevStateRef.current = data;
@@ -76,6 +78,7 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
     });
 
     return () => {
+      if (pulseTimerRef.current !== null) clearTimeout(pulseTimerRef.current);
       channel.unbind_all();
       pusher.disconnect();
     };
