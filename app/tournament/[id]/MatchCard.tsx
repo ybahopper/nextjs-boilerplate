@@ -27,15 +27,10 @@ export default function MatchCard({ seed, isPulsing }: Props) {
 function PlayerRow({ team }: { team: Team | undefined }) {
   const name = team?.name;
   const isWinner = team?.isWinner ?? false;
-  const isBye = name === 'BYE';
-  const isTbd = !name || name === 'TBD';
 
-  if (isBye || isTbd) {
-    return (
-      <div className="px-4 py-2 text-xs italic text-zinc-600">
-        {isBye ? 'BYE' : 'TBD'}
-      </div>
-    );
+  if (!name || name === 'BYE' || name === 'TBD') {
+    const label = name === 'BYE' ? 'BYE' : 'TBD';
+    return <div className="px-4 py-2 text-xs italic text-zinc-600">{label}</div>;
   }
 
   if (isWinner) {
