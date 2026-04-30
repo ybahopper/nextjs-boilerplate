@@ -20,7 +20,7 @@ Three tables in Neon PostgreSQL, created via raw SQL using `@neondatabase/server
 |---|---|---|
 | id | UUID | Primary key, gen_random_uuid() |
 | name | TEXT | Tournament display name |
-| status | TEXT | `pending` \| `active` \| `complete` |
+| status | TEXT | `active` \| `complete` — set to `active` on creation, `complete` when the final match has a winner |
 | created_at | TIMESTAMPTZ | Default now() |
 
 ### `players`
@@ -43,7 +43,7 @@ Three tables in Neon PostgreSQL, created via raw SQL using `@neondatabase/server
 | winner_id | UUID\|null | FK → players.id, null = not yet played |
 | next_match_id | UUID\|null | FK → matches.id, null = this is the final |
 
-`next_match_id` wires the bracket tree: when a match is won, the winner is written into the `player1_id` or `player2_id` of the linked next match.
+`next_match_id` wires the bracket tree: when a match is won, the winner is written into the `player1_id` or `player2_id` of the linked next match. Slot assignment is deterministic: even `position` matches (0, 2, 4…) write their winner as `player1_id`; odd position matches (1, 3, 5…) write as `player2_id`.
 
 ---
 
