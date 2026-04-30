@@ -13,12 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'Okinawa Tournament',
+  title: 'Okinawa',
   description: 'Live Brackets',
   openGraph: {
     title: 'Okinawa Tournament',
     description: 'Track your matches and climb the bracket.',
-    url: 'https://okinawa-pink-psi-51.vercel.app/',
     siteName: 'Okinawa Combat',
     locale: 'en_US',
     type: 'website',
