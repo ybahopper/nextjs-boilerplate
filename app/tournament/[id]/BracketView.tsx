@@ -105,7 +105,7 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
         {state.tournament.name}
       </h1>
       <div className="overflow-x-auto">
-        <div className="flex justify-center" style={{ minWidth: 'max-content' }}>
+        <div className="w-max mx-auto">
           <Bracket
             rounds={toRounds(state)}
             roundTitleComponent={(title: string | JSX.Element) => (
