@@ -7,7 +7,10 @@ export default async function TournamentPage({
 }) {
   const { id } = await params;
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div
+      className="min-h-screen text-white"
+      style={{ background: 'radial-gradient(ellipse at top, #18181b 0%, #09090b 70%)' }}
+    >
       <BracketView tournamentId={id} />
     </div>
   );

@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/*
+  react-brackets uses styled-components with dynamic class names.
+  These selectors target connector divs structurally within the bracket wrapper.
+  Inspect the rendered DOM in DevTools if connectors don't match — adjust selectors as needed.
+*/
+.sg-seed-item::before,
+.sg-seed-item::after {
+  background-color: #3f3f46 !important; /* zinc-700 */
+}
