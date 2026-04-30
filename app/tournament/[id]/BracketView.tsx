@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import Pusher from 'pusher-js';
 import { Bracket } from 'react-brackets';
 import type { BracketState, Match } from '@/types/tournament';
+import type { JSX } from 'react';
+import MatchCard from './MatchCard';
 
 function toRounds(state: BracketState) {
   const playerMap = new Map(state.players.map(p => [p.id, p.name]));
@@ -85,13 +87,34 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
   }, [tournamentId]);
 
   if (error) return <p className="p-8 text-red-400">{error}</p>;
-  if (!state) return <p className="p-8 text-zinc-400">Loading…</p>;
+  if (!state) return (
+    <div className="p-8">
+      <div className="h-10 w-64 bg-zinc-800 rounded mb-2 animate-pulse" />
+      <div className="h-4 w-20 bg-zinc-800 rounded mb-10 animate-pulse" />
+      <div className="flex gap-8 animate-pulse">
+        <div className="bg-zinc-800 rounded-lg h-24 w-48" />
+        <div className="bg-zinc-800 rounded-lg h-24 w-48" />
+        <div className="bg-zinc-800 rounded-lg h-24 w-48" />
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-2">{state.tournament.name}</h1>
-      <p className="mb-8 capitalize text-zinc-400">{state.tournament.status}</p>
-      <Bracket rounds={toRounds(state)} />
+      <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10">
+        {state.tournament.name}
+      </h1>
+      <Bracket
+        rounds={toRounds(state)}
+        roundTitleComponent={(title: string | JSX.Element) => (
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
+            {title}
+          </p>
+        )}
+        renderSeedComponent={({ seed }) => (
+          <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
+        )}
+      />
     </div>
   );
 }
