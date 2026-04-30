@@ -77,8 +77,8 @@ Called by the Roblox game server to report a match result.
 
 Sets `winner_id` on the match, advances the winner into the correct slot of `next_match_id`, marks the tournament `complete` if it was the final, and broadcasts an SSE event to all connected browser clients watching that tournament.
 
-### `GET /api/tournaments/:id/stream`
-SSE endpoint. Streams bracket update events to connected browsers. Each event contains the full updated bracket state (not a diff). No auth required (read-only).
+### ~~`GET /api/tournaments/:id/stream`~~
+Not implemented. Replaced by Pusher WebSocket delivery — see Real-Time Updates section.
 
 ---
 
@@ -97,14 +97,15 @@ The full bracket skeleton exists in the DB from creation. Subsequent winner repo
 
 ---
 
-## SSE Implementation
+## Real-Time Updates (Pusher)
 
-- The SSE endpoint (`GET /api/tournaments/:id/stream`) holds open an HTTP response and registers a callback in an in-process subscriber map keyed by tournament ID
-- When `POST /api/matches/:id/winner` completes, it looks up all open SSE connections for that tournament and writes an event to each
-- Event format: `data: <JSON>\n\n` where JSON is the full bracket state
-- The frontend replaces its bracket state wholesale on each event
+The app runs on Vercel's serverless environment. Serverless function invocations are stateless — an in-process SSE subscriber Map would not persist between requests. Pusher is used instead: it is a managed WebSocket service with a generous free tier (100 concurrent connections, 200k messages/day).
 
-This is an in-process pub/sub pattern. It works correctly for a single Next.js server instance (local dev and single-instance deployments). For multi-instance deployments, a Redis pub/sub channel would be needed — out of scope for now.
+**Server side (`lib/pusher.ts`):** Initialises a `Pusher` server client using `PUSHER_APP_ID`, `NEXT_PUBLIC_PUSHER_KEY`, `PUSHER_SECRET`, `NEXT_PUBLIC_PUSHER_CLUSTER`. When `POST /api/matches/:id/winner` completes, it calls `pusherServer.trigger('tournament-{id}', 'bracket-update', bracketState)`.
+
+**Client side (`BracketView.tsx`):** Uses `pusher-js` to subscribe to the `tournament-{id}` channel and bind to the `bracket-update` event. On each event, React state is replaced wholesale with the full bracket payload.
+
+The `GET /api/tournaments/:id/stream` SSE endpoint is not needed and is not implemented.
 
 ---
 
@@ -138,6 +139,10 @@ A single `API_KEY` environment variable. Protected endpoints check the `x-api-ke
 |---|---|
 | `DATABASE_URL` | Neon connection string (pooled) |
 | `API_KEY` | Shared secret for protected endpoints |
+| `PUSHER_APP_ID` | Pusher app ID (server only) |
+| `PUSHER_SECRET` | Pusher secret (server only) |
+| `NEXT_PUBLIC_PUSHER_KEY` | Pusher public key (client + server) |
+| `NEXT_PUBLIC_PUSHER_CLUSTER` | Pusher cluster, e.g. `us2` (client + server) |
 
 ---
 
@@ -146,5 +151,5 @@ A single `API_KEY` environment variable. Protected endpoints check the `x-api-ke
 - Double elimination / round robin formats
 - Per-tournament API keys
 - Match scheduling or timers
-- Multi-instance SSE (Redis pub/sub)
+- WebSocket alternatives (Ably, Upstash Redis pub/sub)
 - Admin dashboard UI
