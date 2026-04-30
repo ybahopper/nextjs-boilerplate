@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Pusher from 'pusher-js';
-import { Bracket } from 'react-brackets';
+import { Bracket, Seed } from 'react-brackets';
 import type { BracketState, Match } from '@/types/tournament';
 import type { JSX } from 'react';
 import MatchCard from './MatchCard';
@@ -104,17 +104,21 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
       <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10">
         {state.tournament.name}
       </h1>
-      <Bracket
-        rounds={toRounds(state)}
-        roundTitleComponent={(title: string | JSX.Element) => (
-          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
-            {title}
-          </p>
-        )}
-        renderSeedComponent={({ seed }) => (
-          <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
-        )}
-      />
+      <div className="overflow-x-auto flex justify-center">
+        <Bracket
+          rounds={toRounds(state)}
+          roundTitleComponent={(title: string | JSX.Element) => (
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
+              {title}
+            </p>
+          )}
+          renderSeedComponent={({ seed, breakpoint }) => (
+            <Seed mobileBreakpoint={breakpoint}>
+              <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
+            </Seed>
+          )}
+        />
+      </div>
     </div>
   );
 }
