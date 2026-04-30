@@ -8,7 +8,7 @@ export default async function TournamentPage({
   const { id } = await params;
   return (
     <div
-      className="min-h-screen text-white"
+      className="min-h-screen text-white flex flex-col items-center"
       style={{ background: 'radial-gradient(ellipse at top, #18181b 0%, #09090b 70%)' }}
     >
       <BracketView tournamentId={id} />

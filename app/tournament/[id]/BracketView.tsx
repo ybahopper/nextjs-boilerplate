@@ -88,9 +88,9 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
 
   if (error) return <p className="p-8 text-red-400">{error}</p>;
   if (!state) return (
-    <div className="p-8">
-      <div className="h-10 w-64 bg-zinc-800 rounded mb-2 animate-pulse" />
-      <div className="h-4 w-20 bg-zinc-800 rounded mb-10 animate-pulse" />
+    <div className="p-8 flex flex-col items-center gap-2">
+      <div className="h-10 w-64 bg-zinc-800 rounded animate-pulse" />
+      <div className="h-4 w-20 bg-zinc-800 rounded animate-pulse mb-8" />
       <div className="flex gap-8 animate-pulse">
         <div className="bg-zinc-800 rounded-lg h-24 w-48" />
         <div className="bg-zinc-800 rounded-lg h-24 w-48" />
@@ -100,26 +100,24 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
   );
 
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10">
+    <div className="p-8 w-full flex flex-col items-center">
+      <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10 w-full text-center">
         {state.tournament.name}
       </h1>
-      <div className="overflow-x-auto text-center">
-        <div className="inline-block">
-          <Bracket
-            rounds={toRounds(state)}
-            roundTitleComponent={(title: string | JSX.Element) => (
-              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
-                {title}
-              </p>
-            )}
-            renderSeedComponent={({ seed, breakpoint }) => (
-              <Seed mobileBreakpoint={breakpoint}>
-                <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
-              </Seed>
-            )}
-          />
-        </div>
+      <div className="overflow-x-auto max-w-full">
+        <Bracket
+          rounds={toRounds(state)}
+          roundTitleComponent={(title: string | JSX.Element) => (
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
+              {title}
+            </p>
+          )}
+          renderSeedComponent={({ seed, breakpoint }) => (
+            <Seed mobileBreakpoint={breakpoint}>
+              <MatchCard seed={seed} isPulsing={newWinners.has(seed.id as string)} />
+            </Seed>
+          )}
+        />
       </div>
     </div>
   );
