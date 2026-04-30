@@ -26,10 +26,11 @@ body {
 }
 
 /*
-  react-brackets Seed uses ::before/::after pseudo-elements for connector lines.
-  Styled-components forwards data-* attributes to the DOM, so we target them here.
+  react-brackets uses styled-components with dynamic class names.
+  These selectors target connector divs structurally within the bracket wrapper.
+  Inspect the rendered DOM in DevTools if connectors don't match — adjust selectors as needed.
 */
-[data-winner="true"]::before,
-[data-winner="true"]::after {
-  border-color: #fbbf24 !important; /* amber-400 — winner connector */
+.sg-seed-item::before,
+.sg-seed-item::after {
+  background-color: #3f3f46 !important; /* zinc-700 */
 }
