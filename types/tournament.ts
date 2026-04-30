@@ -21,6 +21,8 @@ export interface Match {
   player2Id: string | null;
   winnerId: string | null;
   nextMatchId: string | null;
+  isThirdPlace: boolean;
+  loserNextMatchId: string | null;
 }
 
 export interface BracketState {

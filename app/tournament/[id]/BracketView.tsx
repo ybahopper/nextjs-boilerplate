@@ -9,7 +9,8 @@ import MatchCard from './MatchCard';
 
 function toRounds(state: BracketState) {
   const playerMap = new Map(state.players.map(p => [p.id, p.name]));
-  const maxRound = Math.max(...state.matches.map(m => m.round));
+  const mainMatches = state.matches.filter(m => !m.isThirdPlace);
+  const maxRound = Math.max(...mainMatches.map(m => m.round));
 
   return Array.from({ length: maxRound }, (_, i) => {
     const round = i + 1;
@@ -18,7 +19,7 @@ function toRounds(state: BracketState) {
       : round === maxRound - 1 ? 'Semi-Final'
       : `Round ${round}`;
 
-    const seeds = state.matches
+    const seeds = mainMatches
       .filter(m => m.round === round)
       .sort((a: Match, b: Match) => a.position - b.position)
       .map((m: Match) => ({
@@ -37,6 +38,22 @@ function toRounds(state: BracketState) {
 
     return { title, seeds };
   });
+}
+
+function toThirdPlaceSeed(match: Match, playerMap: Map<string, string>) {
+  return {
+    id: match.id,
+    teams: [
+      {
+        name: match.player1Id ? (playerMap.get(match.player1Id) ?? 'TBD') : 'TBD',
+        isWinner: match.winnerId !== null && match.winnerId === match.player1Id,
+      },
+      {
+        name: match.player2Id ? (playerMap.get(match.player2Id) ?? 'TBD') : 'TBD',
+        isWinner: match.winnerId !== null && match.winnerId === match.player2Id,
+      },
+    ],
+  };
 }
 
 export default function BracketView({ tournamentId }: { tournamentId: string }) {
@@ -99,6 +116,9 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
     </div>
   );
 
+  const thirdPlaceMatch = state.matches.find(m => m.isThirdPlace);
+  const playerMap = new Map(state.players.map(p => [p.id, p.name]));
+
   return (
     <div className="p-8 w-full">
       <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10 text-center">
@@ -119,6 +139,17 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
               </Seed>
             )}
           />
+          {thirdPlaceMatch && (
+            <div className="mt-8 flex flex-col items-center">
+              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-4">
+                3rd Place
+              </p>
+              <MatchCard
+                seed={toThirdPlaceSeed(thirdPlaceMatch, playerMap)}
+                isPulsing={newWinners.has(thirdPlaceMatch.id)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

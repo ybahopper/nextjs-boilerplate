@@ -32,15 +32,17 @@ export async function POST(request: Request) {
   }
 
   // Insert matches in DESCENDING round order (final first, round 1 last)
-  // Required because next_match_id is a self-referencing FK — the referenced
-  // match must exist before the referencing match is inserted.
+  // Required because next_match_id and loser_next_match_id are self-referencing
+  // FKs — the referenced match must exist before the referencing match is inserted.
   const sortedMatches = [...matches].sort((a, b) => b.round - a.round);
   for (const m of sortedMatches) {
     await sql`
       INSERT INTO matches (id, tournament_id, round, position,
-                           player1_id, player2_id, winner_id, next_match_id)
+                           player1_id, player2_id, winner_id, next_match_id,
+                           is_third_place, loser_next_match_id)
       VALUES (${m.id}, ${tournamentId}, ${m.round}, ${m.position},
-              ${m.player1Id}, ${m.player2Id}, ${m.winnerId}, ${m.nextMatchId})
+              ${m.player1Id}, ${m.player2Id}, ${m.winnerId}, ${m.nextMatchId},
+              ${m.isThirdPlace}, ${m.loserNextMatchId})
     `;
   }
 

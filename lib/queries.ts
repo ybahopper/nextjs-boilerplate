@@ -24,6 +24,8 @@ interface MatchRow {
   player2_id: string | null;
   winner_id: string | null;
   next_match_id: string | null;
+  is_third_place: boolean;
+  loser_next_match_id: string | null;
 }
 
 export async function getBracketState(tournamentId: string): Promise<BracketState | null> {
@@ -37,7 +39,8 @@ export async function getBracketState(tournamentId: string): Promise<BracketStat
     `,
     sql`
       SELECT id, tournament_id, round, position,
-             player1_id, player2_id, winner_id, next_match_id
+             player1_id, player2_id, winner_id, next_match_id,
+             is_third_place, loser_next_match_id
       FROM matches
       WHERE tournament_id = ${tournamentId}
       ORDER BY round, position
@@ -69,6 +72,8 @@ export async function getBracketState(tournamentId: string): Promise<BracketStat
       player2Id: m.player2_id,
       winnerId: m.winner_id,
       nextMatchId: m.next_match_id,
+      isThirdPlace: m.is_third_place,
+      loserNextMatchId: m.loser_next_match_id,
     })),
   };
 }

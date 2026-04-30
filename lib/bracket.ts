@@ -12,6 +12,8 @@ export interface GeneratedMatch {
   player2Id: string | null;
   winnerId: string | null;
   nextMatchId: string | null;
+  isThirdPlace: boolean;
+  loserNextMatchId: string | null;
 }
 
 export interface GeneratedBracket {
@@ -55,6 +57,8 @@ export function generateBracket(playerNames: string[]): GeneratedBracket {
       player2Id: null,
       winnerId: null,
       nextMatchId: null,
+      isThirdPlace: false,
+      loserNextMatchId: null,
     }));
   }
 
@@ -93,6 +97,26 @@ export function generateBracket(playerNames: string[]): GeneratedBracket {
   const allMatches: GeneratedMatch[] = [];
   for (let round = 1; round <= totalRounds; round++) {
     allMatches.push(...matchGrid[round]);
+  }
+
+  // Add 3rd place match when there are semi-finals (4+ players)
+  if (totalRounds >= 2) {
+    const thirdPlaceMatch: GeneratedMatch = {
+      id: crypto.randomUUID(),
+      round: totalRounds,
+      position: 1,
+      player1Id: null,
+      player2Id: null,
+      winnerId: null,
+      nextMatchId: null,
+      isThirdPlace: true,
+      loserNextMatchId: null,
+    };
+    // Wire semi-final losers to the 3rd place match
+    for (const match of matchGrid[totalRounds - 1]) {
+      match.loserNextMatchId = thirdPlaceMatch.id;
+    }
+    allMatches.push(thirdPlaceMatch);
   }
 
   return { players, matches: allMatches };

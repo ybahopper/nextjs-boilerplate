@@ -13,7 +13,8 @@ export async function POST(
   const { winnerId } = await request.json() as { winnerId: string };
 
   const rows = await sql`
-    SELECT id, tournament_id, player1_id, player2_id, winner_id, next_match_id, position
+    SELECT id, tournament_id, player1_id, player2_id, winner_id, next_match_id, position,
+           is_third_place, loser_next_match_id
     FROM matches WHERE id = ${matchId}
   `;
   if (rows.length === 0) return Response.json({ error: 'Match not found' }, { status: 404 });
@@ -37,8 +38,18 @@ export async function POST(
     } else {
       await sql`UPDATE matches SET player2_id = ${winnerId} WHERE id = ${match.next_match_id}`;
     }
-  } else {
+  } else if (!match.is_third_place) {
     await sql`UPDATE tournaments SET status = 'complete' WHERE id = ${match.tournament_id}`;
+  }
+
+  // Route the loser to the 3rd place match (applies to semi-final matches)
+  if (match.loser_next_match_id) {
+    const loserId = winnerId === match.player1_id ? match.player2_id : match.player1_id;
+    if (match.position % 2 === 0) {
+      await sql`UPDATE matches SET player1_id = ${loserId} WHERE id = ${match.loser_next_match_id}`;
+    } else {
+      await sql`UPDATE matches SET player2_id = ${loserId} WHERE id = ${match.loser_next_match_id}`;
+    }
   }
 
   const bracket = await getBracketState(match.tournament_id);

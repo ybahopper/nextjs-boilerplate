@@ -15,12 +15,14 @@ CREATE TABLE IF NOT EXISTS players (
 );
 
 CREATE TABLE IF NOT EXISTS matches (
-  id            UUID PRIMARY KEY,
-  tournament_id UUID NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
-  round         INT  NOT NULL,
-  position      INT  NOT NULL,
-  player1_id    UUID REFERENCES players(id),
-  player2_id    UUID REFERENCES players(id),
-  winner_id     UUID REFERENCES players(id),
-  next_match_id UUID REFERENCES matches(id)
+  id                  UUID    PRIMARY KEY,
+  tournament_id       UUID    NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+  round               INT     NOT NULL,
+  position            INT     NOT NULL,
+  player1_id          UUID    REFERENCES players(id),
+  player2_id          UUID    REFERENCES players(id),
+  winner_id           UUID    REFERENCES players(id),
+  next_match_id       UUID    REFERENCES matches(id),
+  is_third_place      BOOLEAN NOT NULL DEFAULT FALSE,
+  loser_next_match_id UUID    REFERENCES matches(id)
 );
