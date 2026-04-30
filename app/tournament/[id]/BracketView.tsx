@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Pusher from 'pusher-js';
 import { Bracket } from 'react-brackets';
 import type { BracketState, Match } from '@/types/tournament';
@@ -40,18 +40,40 @@ function toRounds(state: BracketState) {
 export default function BracketView({ tournamentId }: { tournamentId: string }) {
   const [state, setState] = useState<BracketState | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [newWinners, setNewWinners] = useState<Set<string>>(new Set());
+  const prevStateRef = useRef<BracketState | null>(null);
 
   useEffect(() => {
     fetch(`/api/tournaments/${tournamentId}`)
       .then(r => r.json())
-      .then(setState)
+      .then((data: BracketState) => {
+        prevStateRef.current = data;
+        setState(data);
+      })
       .catch(() => setError('Failed to load tournament'));
 
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
     });
     const channel = pusher.subscribe(`tournament-${tournamentId}`);
-    channel.bind('bracket-update', (data: BracketState) => setState(data));
+    channel.bind('bracket-update', (data: BracketState) => {
+      const prev = prevStateRef.current;
+      if (prev) {
+        const freshWinners = new Set<string>();
+        for (const match of data.matches) {
+          const prevMatch = prev.matches.find(m => m.id === match.id);
+          if (match.winnerId && prevMatch && !prevMatch.winnerId) {
+            freshWinners.add(match.id);
+          }
+        }
+        if (freshWinners.size > 0) {
+          setNewWinners(freshWinners);
+          setTimeout(() => setNewWinners(new Set()), 1000);
+        }
+      }
+      prevStateRef.current = data;
+      setState(data);
+    });
 
     return () => {
       channel.unbind_all();
