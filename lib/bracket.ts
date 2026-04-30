@@ -32,7 +32,11 @@ export function generateBracket(playerNames: string[]): GeneratedBracket {
   const bracketSize = nextPowerOf2(n);
   const totalRounds = Math.log2(bracketSize);
 
-  const shuffled = [...playerNames].sort(() => Math.random() - 0.5);
+  const shuffled = [...playerNames];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   const players: GeneratedPlayer[] = shuffled.map((name, i) => ({
     id: crypto.randomUUID(),
     name,
