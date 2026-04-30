@@ -100,7 +100,7 @@ export default function BracketView({ tournamentId }: { tournamentId: string }) 
   );
 
   return (
-    <div className="p-8">
+    <div className="p-8 w-full">
       <h1 className="text-4xl font-bold tracking-tight text-white border-b border-zinc-800 pb-4 mb-10 text-center">
         {state.tournament.name}
       </h1>
